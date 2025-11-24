@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}المسابقات - تعلمي في يدي{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="text-center mb-5 animate-fade-in">
+        <h1 class="display-5 fw-bold text-primary mb-3">ساحة التحدي</h1>
+        <p class="lead text-muted">شارك في المسابقات، نافس زملائك، واربح الجوائز!</p>
+    </div>
+
+    <!-- Featured Competition (Hero) -->
+    {% if competitions %}
+        <div class="glass-card p-0 overflow-hidden mb-5 animate-on-scroll">
+            <div class="row g-0">
+                <div class="col-md-6 bg-primary bg-opacity-10 d-flex align-items-center justify-content-center p-5">
+                    <img src="{% static 'images/trophy.webp' %}" alt="Trophy" class="img-fluid animate-float" style="max-height: 250px;">
+                </div>
+                <div class="col-md-6 p-5 d-flex flex-column justify-content-center">
+                    <span class="badge bg-warning text-dark w-auto align-self-start mb-3 px-3 py-2 rounded-pill">
+                        <i class="fa-solid fa-star me-1"></i> مسابقة مميزة
+                    </span>
+                    <h2 class="fw-bold mb-3">{{ competitions.0.title }}</h2>
+                    <p class="text-muted mb-4">{{ competitions.0.description|truncatewords:30 }}</p>
+                    <div class="d-flex gap-3">
+                        <button class="btn btn-primary-modern px-4 rounded-pill shadow-md">
+                            شارك الآن <i class="fa-solid fa-arrow-left ms-2"></i>
+                        </button>
+                        <button class="btn btn-outline-primary px-4 rounded-pill">
+                            التفاصيل
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Competitions Grid -->
+        <h3 class="fw-bold mb-4 animate-on-scroll">المسابقات المتاحة</h3>
+        <div class="row g-4">
+            {% for competition in competitions|slice:"1:" %}
+                <div class="col-md-6 col-lg-4 animate-on-scroll">
+                    <div class="glass-card h-100 p-4 hover-scale transition-all">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="bg-info bg-opacity-10 text-info rounded-circle p-3">
+                                <i class="fa-solid fa-medal fa-xl"></i>
+                            </div>
+                            <span class="badge bg-light text-secondary border">جديد</span>
+                        </div>
+                        <h4 class="fw-bold mb-2">{{ competition.title }}</h4>
+                        <p class="text-muted small mb-3">{{ competition.description|truncatewords:15 }}</p>
+                        <button class="btn btn-sm btn-outline-primary w-100 rounded-pill">
+                            عرض التفاصيل
+                        </button>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-5 animate-fade-in">
+            <img src="{% static 'images/trophy.webp' %}" alt="No Competitions" width="150" class="mb-4 opacity-50 grayscale">
+            <h3 class="text-muted">لا توجد مسابقات حالياً</h3>
+            <p class="text-muted">عد لاحقاً للمزيد من التحديات!</p>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+    .animate-float {
+        animation: float 3s ease-in-out infinite;
+    }
+    @keyframes float {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-15px); }
+        100% { transform: translateY(0px); }
+    }
+    .grayscale { filter: grayscale(100%); }
+</style>
+{% endblock %}

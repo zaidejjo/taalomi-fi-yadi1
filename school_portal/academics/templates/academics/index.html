@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}الأكاديميات - تعلمي في يدي{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Header -->
+    <div class="text-center mb-5 animate-fade-in">
+        <h1 class="display-5 fw-bold text-primary mb-3">الأكاديميات</h1>
+        <p class="lead text-muted">بوابتك لكل ما يتعلق بدراستك، من مواد وامتحانات إلى علامات وجداول.</p>
+    </div>
+
+    <!-- Dashboard Grid -->
+    <div class="row g-4 justify-content-center">
+        
+        <!-- Subjects -->
+        <div class="col-md-6 col-lg-3 animate-on-scroll delay-100">
+            <a href="{% url 'academics:subjects' %}" class="text-decoration-none">
+                <div class="glass-card h-100 p-4 text-center hover-scale transition-all">
+                    <div class="mb-4 position-relative d-inline-block">
+                        <div class="blob-bg bg-primary opacity-25 position-absolute w-100 h-100 rounded-circle blur-lg" style="transform: scale(1.5);"></div>
+                        <img src="{% static 'images/books.webp' %}" alt="Subjects" width="80" class="position-relative z-1">
+                    </div>
+                    <h3 class="h5 fw-bold text-dark mb-2">المواد الدراسية</h3>
+                    <p class="text-muted small mb-0">تصفح جميع المواد والدروس المتاحة لك.</p>
+                </div>
+            </a>
+        </div>
+
+        <!-- Grades -->
+        <div class="col-md-6 col-lg-3 animate-on-scroll delay-200">
+            <a href="{% url 'academics:grades' %}" class="text-decoration-none">
+                <div class="glass-card h-100 p-4 text-center hover-scale transition-all">
+                    <div class="mb-4 position-relative d-inline-block">
+                        <div class="blob-bg bg-success opacity-25 position-absolute w-100 h-100 rounded-circle blur-lg" style="transform: scale(1.5);"></div>
+                        <img src="{% static 'images/grades.webp' %}" alt="Grades" width="80" class="position-relative z-1">
+                    </div>
+                    <h3 class="h5 fw-bold text-dark mb-2">العلامات</h3>
+                    <p class="text-muted small mb-0">تابع تحصيلك الدراسي ونتائج الامتحانات.</p>
+                </div>
+            </a>
+        </div>
+
+        <!-- Exams -->
+        <div class="col-md-6 col-lg-3 animate-on-scroll delay-300">
+            <a href="{% url 'academics:exams' %}" class="text-decoration-none">
+                <div class="glass-card h-100 p-4 text-center hover-scale transition-all">
+                    <div class="mb-4 position-relative d-inline-block">
+                        <div class="blob-bg bg-warning opacity-25 position-absolute w-100 h-100 rounded-circle blur-lg" style="transform: scale(1.5);"></div>
+                        <img src="{% static 'images/exam.webp' %}" alt="Exams" width="80" class="position-relative z-1">
+                    </div>
+                    <h3 class="h5 fw-bold text-dark mb-2">الامتحانات</h3>
+                    <p class="text-muted small mb-0">جداول الامتحانات والمواعيد القادمة.</p>
+                </div>
+            </a>
+        </div>
+
+        <!-- Timetable -->
+        <div class="col-md-6 col-lg-3 animate-on-scroll delay-400">
+            <a href="{% url 'academics:timetable' %}" class="text-decoration-none">
+                <div class="glass-card h-100 p-4 text-center hover-scale transition-all">
+                    <div class="mb-4 position-relative d-inline-block">
+                        <div class="blob-bg bg-info opacity-25 position-absolute w-100 h-100 rounded-circle blur-lg" style="transform: scale(1.5);"></div>
+                        <img src="{% static 'images/calendar.webp' %}" alt="Timetable" width="80" class="position-relative z-1">
+                    </div>
+                    <h3 class="h5 fw-bold text-dark mb-2">الجدول الدراسي</h3>
+                    <p class="text-muted small mb-0">جدول الحصص الأسبوعي ومواعيد الدروس.</p>
+                </div>
+            </a>
+        </div>
+
+    </div>
+</div>
+
+<style>
+    .hover-scale:hover {
+        transform: translateY(-10px);
+    }
+    .blur-lg {
+        filter: blur(20px);
+    }
+</style>
+{% endblock %}

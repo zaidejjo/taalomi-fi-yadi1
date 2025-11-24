@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}الرئيسية - تعلمي في يدي{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, rgba(67, 97, 238, 0.1), rgba(76, 201, 240, 0.1));
+        border-radius: var(--radius-lg);
+        padding: 4rem 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .hero-blob {
+        position: absolute;
+        width: 300px;
+        height: 300px;
+        background: var(--primary-color);
+        filter: blur(80px);
+        opacity: 0.2;
+        border-radius: 50%;
+        z-index: 0;
+    }
+    
+    .blob-1 { top: -100px; right: -100px; }
+    .blob-2 { bottom: -100px; left: -100px; background: var(--accent-color); }
+
+    .feature-card {
+        height: 100%;
+        padding: 2rem;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+        background: var(--bg-surface);
+        border: 1px solid rgba(255,255,255,0.5);
+    }
+
+    .feature-icon {
+        width: 80px;
+        height: 80px;
+        margin-bottom: 1.5rem;
+        transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .feature-card:hover .feature-icon {
+        transform: scale(1.2) rotate(5deg);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section mb-5 text-center animate-fade-in">
+    <div class="hero-blob blob-1"></div>
+    <div class="hero-blob blob-2"></div>
+    
+    <div class="position-relative z-1">
+        <h1 class="display-4 fw-bold mb-3">
+            مرحباً بك في <span style="color: var(--primary-color);">تعلمي في يدي</span>
+        </h1>
+        <p class="lead text-muted mb-4 mx-auto" style="max-width: 600px;">
+            منصتك التعليمية المتكاملة. تصفح الأكاديميات، تابع الحضور، وشارك في المسابقات بكل سهولة.
+        </p>
+        
+        {% if not user.is_authenticated %}
+            <div class="d-flex justify-content-center gap-3">
+                <a href="{% url 'signup' %}" class="btn btn-primary-modern shadow-lg">
+                    <i class="fa-solid fa-user-plus"></i> ابدأ رحلتك
+                </a>
+                <a href="{% url 'login' %}" class="btn btn-outline-primary rounded-pill px-4 py-2 fw-bold">
+                    تسجيل الدخول
+                </a>
+            </div>
+        {% else %}
+            <div class="badge bg-primary bg-opacity-10 text-primary px-4 py-2 rounded-pill fs-6 border border-primary border-opacity-25">
+                👋 أهلاً بك، {{ user.first_name }}
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Features Grid -->
+<section class="row g-4">
+    <!-- Academics -->
+    <div class="col-md-6 col-lg-4 animate-on-scroll delay-100">
+        <div class="glass-card feature-card">
+            <div>
+                <img src="{% static 'images/books.webp' %}" alt="Academics" class="feature-icon">
+                <h3 class="h4 fw-bold mb-2">الأكاديميات</h3>
+                <p class="text-muted">تابع المواد الدراسية، الامتحانات، والعلامات في مكان واحد.</p>
+            </div>
+            <a href="{% url 'academics:index' %}" class="btn btn-primary-modern w-100 mt-3">
+                تصفح الأكاديميات <i class="fa-solid fa-arrow-left"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- Attendance -->
+    <div class="col-md-6 col-lg-4 animate-on-scroll delay-200">
+        <div class="glass-card feature-card">
+            <div>
+                <img src="{% static 'images/clock.webp' %}" alt="Attendance" class="feature-icon">
+                <h3 class="h4 fw-bold mb-2">الحضور والغياب</h3>
+                <p class="text-muted">سجل الحضور وتابع تقارير الغياب بدقة وسهولة.</p>
+            </div>
+            <a href="{% url 'attendance:absence_list' %}" class="btn btn-primary-modern w-100 mt-3">
+                سجل الحضور <i class="fa-solid fa-arrow-left"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- Assignments -->
+    <div class="col-md-6 col-lg-4 animate-on-scroll delay-300">
+        <div class="glass-card feature-card">
+            <div>
+                <img src="{% static 'images/assignment.webp' %}" alt="Assignments" class="feature-icon">
+                <h3 class="h4 fw-bold mb-2">الواجبات</h3>
+                <p class="text-muted">استلم وسلم الواجبات المدرسية وتابع تقييماتك.</p>
+            </div>
+            <a href="{% url 'assignments:assignment_list' %}" class="btn btn-primary-modern w-100 mt-3">
+                الواجبات <i class="fa-solid fa-arrow-left"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- Competitions -->
+    <div class="col-md-6 col-lg-4 animate-on-scroll">
+        <div class="glass-card feature-card">
+            <div>
+                <img src="{% static 'images/trophy.webp' %}" alt="Competitions" class="feature-icon">
+                <h3 class="h4 fw-bold mb-2">المسابقات</h3>
+                <p class="text-muted">شارك في التحديات والمسابقات المدرسية واربح الجوائز.</p>
+            </div>
+            <a href="{% url 'competitions:competition_list' %}" class="btn btn-primary-modern w-100 mt-3">
+                المسابقات <i class="fa-solid fa-arrow-left"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- AI Chat -->
+    <div class="col-md-6 col-lg-4 animate-on-scroll delay-100">
+        <div class="glass-card feature-card">
+            <div>
+                <img src="{% static 'images/ai_robot.webp' %}" alt="AI Chat" class="feature-icon">
+                <h3 class="h4 fw-bold mb-2">المساعد الذكي</h3>
+                <p class="text-muted">تحدث مع مساعدك الذكي للإجابة على استفساراتك.</p>
+            </div>
+            <a href="{% url 'ai_chat:chat_home' %}" class="btn btn-primary-modern w-100 mt-3">
+                ابدأ المحادثة <i class="fa-solid fa-arrow-left"></i>
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}

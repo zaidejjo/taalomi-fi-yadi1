@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}المواد الدراسية - تعلمي في يدي{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="text-center mb-5 animate-fade-in">
+        <h1 class="h2 fw-bold text-primary mb-2">المواد الدراسية</h1>
+        <p class="text-muted">استعرض جميع المواد الدراسية حسب الصفوف</p>
+    </div>
+
+    <div class="accordion glass-card p-0 border-0 overflow-hidden" id="gradesAccordion">
+        {% for grade in grades %}
+        <div class="accordion-item border-0 bg-transparent animate-on-scroll delay-{{ forloop.counter }}00">
+            <h2 class="accordion-header" id="heading{{ grade.number }}">
+                <button class="accordion-button collapsed fw-bold bg-transparent border-bottom" 
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#collapse{{ grade.number }}"
+                        aria-expanded="false"
+                        aria-controls="collapse{{ grade.number }}">
+                    <i class="fa-solid fa-graduation-cap me-2 text-primary"></i>
+                    الصف {{ grade.name }}
+                </button>
+            </h2>
+            <div id="collapse{{ grade.number }}" 
+                 class="accordion-collapse collapse"
+                 aria-labelledby="heading{{ grade.number }}"
+                 data-bs-parent="#gradesAccordion">
+                <div class="accordion-body p-4 bg-light bg-opacity-25">
+                    <div class="row g-3">
+                        {% for subject in grade.subjects %}
+                        <div class="col-md-6 col-lg-4">
+                            <a href="{% url 'academics:subject_detail' grade.number subject %}"
+                               class="text-decoration-none">
+                                <div class="glass-card p-3 h-100 hover-scale transition-all text-center">
+                                    <div class="mb-2">
+                                        <i class="fa-solid fa-book fa-2x text-primary opacity-75"></i>
+                                    </div>
+                                    <h5 class="fw-bold mb-0">{{ subject }}</h5>
+                                </div>
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="text-center mt-5">
+        <a href="{% url 'academics:index' %}" class="btn btn-outline-secondary rounded-pill px-4">
+            <i class="fa-solid fa-arrow-right me-2"></i> رجوع
+        </a>
+    </div>
+</div>
+
+<style>
+.accordion-button {
+    color: var(--text-main);
+    padding: 1.25rem;
+}
+.accordion-button:not(.collapsed) {
+    background-color: rgba(67, 97, 238, 0.1);
+    color: var(--primary-color);
+    box-shadow: none;
+}
+.accordion-button:focus {
+    box-shadow: none;
+    border-color: transparent;
+}
+.accordion-button::after {
+    filter: brightness(0) saturate(100%) invert(36%) sepia(91%) saturate(2466%) hue-rotate(216deg) brightness(97%) contrast(93%);
+}
+.hover-scale:hover {
+    transform: translateY(-5px);
+}
+</style>
+{% endblock %}

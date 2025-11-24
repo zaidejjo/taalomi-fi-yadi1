@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}إنشاء حساب جديد - تعلمي في يدي{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8 col-xl-7">
+        <div class="glass-card p-4 p-md-5 animate-fade-in">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold text-primary mb-2">إنشاء حساب جديد</h2>
+                <p class="text-muted">انضم إلينا وابدأ رحلتك التعليمية اليوم</p>
+            </div>
+
+            <form method="post" class="needs-validation" novalidate>
+                {% csrf_token %}
+
+                {% if form.errors %}
+                    <div class="alert alert-danger rounded-3 shadow-sm mb-4">
+                        <ul class="mb-0 small">
+                            {% for field in form %}
+                                {% for error in field.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            {% endfor %}
+                            {% for error in form.non_field_errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+
+                <!-- Personal Info -->
+                <h5 class="fw-bold mb-3 text-secondary"><i class="fa-solid fa-id-card me-2"></i> المعلومات الشخصية</h5>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">الرقم الوطني</label>
+                        {{ form.username|add_class:"form-control"|attr:"placeholder:الرقم الوطني" }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">البريد الإلكتروني</label>
+                        {{ form.email|add_class:"form-control"|attr:"placeholder:example@email.com" }}
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-3 col-6">
+                        <label class="form-label small fw-bold">الاسم الأول</label>
+                        {{ form.first_name|add_class:"form-control" }}
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <label class="form-label small fw-bold">الاسم الثاني</label>
+                        {{ form.second_name|add_class:"form-control" }}
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <label class="form-label small fw-bold">الاسم الثالث</label>
+                        {{ form.third_name|add_class:"form-control" }}
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <label class="form-label small fw-bold">العائلة</label>
+                        {{ form.fourth_name|add_class:"form-control" }}
+                    </div>
+                </div>
+
+                <!-- Security -->
+                <h5 class="fw-bold mb-3 text-secondary"><i class="fa-solid fa-shield-halved me-2"></i> الأمان</h5>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">كلمة المرور</label>
+                        {{ form.password1|add_class:"form-control" }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">تأكيد كلمة المرور</label>
+                        {{ form.password2|add_class:"form-control" }}
+                    </div>
+                </div>
+
+                <!-- Role & Details -->
+                <h5 class="fw-bold mb-3 text-secondary"><i class="fa-solid fa-user-graduate me-2"></i> بيانات الحساب</h5>
+                <div class="mb-4">
+                    <label class="form-label small fw-bold">الدور</label>
+                    {{ form.role|add_class:"form-select" }}
+                </div>
+
+                <div id="student-fields" class="bg-light bg-opacity-50 p-3 rounded-3 mb-4 border" style="display: none;">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">الصف</label>
+                            {{ form.grade|add_class:"form-select" }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">الشعبة</label>
+                            <select name="section" class="form-select">
+                                <option value="" selected disabled>اختر الشعبة</option>
+                                <option value="أ">أ</option>
+                                <option value="ب">ب</option>
+                                <option value="ج">ج</option>
+                                <option value="د">د</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary-modern w-100 shadow-lg btn-lg">
+                    إنشاء الحساب <i class="fa-solid fa-check ms-2"></i>
+                </button>
+
+                <div class="text-center mt-4">
+                    <p class="small text-muted mb-0">
+                        لديك حساب بالفعل؟ 
+                        <a href="{% url 'login' %}" class="fw-bold text-primary text-decoration-none">تسجيل الدخول</a>
+                    </p>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const roleSelect = document.getElementById('id_role');
+        const studentFields = document.getElementById('student-fields');
+
+        function toggleStudentFields() {
+            if (roleSelect.value === 'student') {
+                studentFields.style.display = 'block';
+                studentFields.classList.add('animate-fade-in');
+            } else {
+                studentFields.style.display = 'none';
+            }
+        }
+
+        if (roleSelect) {
+            roleSelect.addEventListener('change', toggleStudentFields);
+            toggleStudentFields(); // Initial check
+        }
+    });
+</script>
+{% endblock %}

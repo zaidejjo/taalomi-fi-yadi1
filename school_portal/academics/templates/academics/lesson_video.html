@@ -1,0 +1,261 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ lesson.title }} - {{ subject_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .video-container {
+        position: relative;
+        background: linear-gradient(135deg, rgba(67, 97, 238, 0.05), rgba(76, 201, 240, 0.05));
+        border-radius: var(--radius-lg);
+        padding: 2rem;
+    }
+    
+    .video-wrapper {
+        position: relative;
+        border-radius: var(--radius-md);
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    }
+    
+    .lesson-sidebar {
+        position: sticky;
+        top: 100px;
+    }
+    
+    .progress-circle {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: conic-gradient(var(--primary-color) 0%, var(--bg-surface) 0%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .progress-inner {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: var(--bg-surface);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    font-weight: bold;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row g-4">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Lesson Header -->
+            <div class="glass-card p-4 mb-4 animate-fade-in">
+                <div class="d-flex align-items-start justify-content-between gap-3 mb-3">
+                    <div>
+                        <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill mb-2">
+                            {{ subject_name }}
+                        </span>
+                        <h1 class="h3 fw-bold mb-2">{{ lesson.title }}</h1>
+                        <div class="text-muted small">
+                            <i class="fa-solid fa-graduation-cap me-1"></i> الصف {{ grade_number }}
+                        </div>
+                    </div>
+                    <div class="progress-circle" id="progress-circle">
+                        <div class="progress-inner">
+                            <span id="progress-text">0%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Video Player -->
+            <div class="video-container mb-4 animate-on-scroll">
+                {% if lesson.videos %}
+                    {% if lesson.videos|length > 1 %}
+                        <!-- Multiple Videos Carousel -->
+                        <div id="videoCarousel" class="carousel slide" data-bs-ride="false">
+                            <div class="carousel-indicators">
+                                {% for video in lesson.videos %}
+                                <button type="button" 
+                                        data-bs-target="#videoCarousel" 
+                                        data-bs-slide-to="{{ forloop.counter0 }}" 
+                                        {% if forloop.first %}class="active" aria-current="true"{% endif %}
+                                        aria-label="فيديو {{ forloop.counter }}">
+                                </button>
+                                {% endfor %}
+                            </div>
+                            
+                            <div class="carousel-inner">
+                                {% for video in lesson.videos %}
+                                <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                    <div class="video-wrapper">
+                                        <div class="ratio ratio-16x9">
+                                            <iframe
+                                                src="{{ video }}"
+                                                title="{{ lesson.title }} - جزء {{ forloop.counter }}"
+                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                                allowfullscreen
+                                                loading="lazy"
+                                                class="video-iframe">
+                                            </iframe>
+                                        </div>
+                                    </div>
+                                    <div class="text-center mt-3">
+                                        <span class="badge bg-secondary">جزء {{ forloop.counter }} من {{ lesson.videos|length }}</span>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            
+                            <button class="carousel-control-prev" type="button" data-bs-target="#videoCarousel" data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon bg-dark rounded-circle p-3" aria-hidden="true"></span>
+                                <span class="visually-hidden">السابق</span>
+                            </button>
+                            <button class="carousel-control-next" type="button" data-bs-target="#videoCarousel" data-bs-slide="next">
+                                <span class="carousel-control-next-icon bg-dark rounded-circle p-3" aria-hidden="true"></span>
+                                <span class="visually-hidden">التالي</span>
+                            </button>
+                        </div>
+                    {% else %}
+                        <!-- Single Video -->
+                        <div class="video-wrapper">
+                            <div class="ratio ratio-16x9">
+                                <iframe
+                                    src="{{ lesson.videos.0 }}"
+                                    title="{{ lesson.title }}"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                    allowfullscreen
+                                    loading="lazy"
+                                    class="video-iframe">
+                                </iframe>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <!-- No Video Available -->
+                    <div class="text-center py-5">
+                        <i class="fa-solid fa-video-slash fa-3x text-muted opacity-50 mb-3"></i>
+                        <h4 class="text-muted">لا يوجد فيديو متاح</h4>
+                        <p class="text-muted">سيتم إضافة الفيديو قريباً</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Video Controls -->
+            <div class="glass-card p-3 mb-4">
+                <div class="d-flex gap-2 justify-content-center flex-wrap">
+                    <button class="btn btn-sm btn-outline-primary rounded-pill" id="mark-complete">
+                        <i class="fa-solid fa-check me-1"></i> وضع علامة كمكتمل
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary rounded-pill">
+                        <i class="fa-solid fa-bookmark me-1"></i> حفظ للمراجعة
+                    </button>
+                    <button class="btn btn-sm btn-outline-info rounded-pill">
+                        <i class="fa-solid fa-share-nodes me-1"></i> مشاركة
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <div class="lesson-sidebar">
+                <!-- Navigation -->
+                <div class="glass-card p-3 mb-3">
+                    <a href="{% url 'academics:subject_detail' grade_number=grade_number subject_name=subject_name %}" 
+                       class="btn btn-outline-secondary w-100 rounded-pill">
+                        <i class="fa-solid fa-arrow-right me-2"></i> العودة للدروس
+                    </a>
+                </div>
+
+                <!-- Lesson Info -->
+                <div class="glass-card p-4 mb-3">
+                    <h5 class="fw-bold mb-3 border-bottom pb-2">معلومات الدرس</h5>
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fa-solid fa-clock text-primary me-2"></i>
+                        <span class="small">مدة الفيديو: 15 دقيقة</span>
+                    </div>
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fa-solid fa-users text-primary me-2"></i>
+                        <span class="small">245 طالب شاهدوا الدرس</span>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <i class="fa-solid fa-star text-warning me-2"></i>
+                        <span class="small">تقييم 4.8</span>
+                    </div>
+                </div>
+
+                <!-- Quick Notes -->
+                <div class="glass-card p-4">
+                    <h5 class="fw-bold mb-3">ملاحظات سريعة</h5>
+                    <textarea class="form-control bg-white bg-opacity-50 border-0" 
+                              rows="4" 
+                              placeholder="اكتب ملاحظاتك هنا..."></textarea>
+                    <button class="btn btn-primary-modern w-100 mt-2 rounded-pill">
+                        <i class="fa-solid fa-save me-2"></i> حفظ الملاحظات
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const markCompleteBtn = document.getElementById('mark-complete');
+    const progressCircle = document.getElementById('progress-circle');
+    const progressText = document.getElementById('progress-text');
+    
+    // Mark as complete
+    markCompleteBtn?.addEventListener('click', function() {
+        const isComplete = this.classList.contains('btn-success');
+        
+        if(!isComplete) {
+            this.classList.remove('btn-outline-primary');
+            this.classList.add('btn-success');
+            this.innerHTML = '<i class="fa-solid fa-check-double me-1"></i> مكتمل';
+            updateProgress(100);
+            
+            // Show success toast
+            showToast('تم وضع علامة على الدرس كمكتمل!', 'success');
+        }
+    });
+    
+    // Update progress
+    function updateProgress(percent) {
+        if(progressCircle && progressText) {
+            progressCircle.style.background = `conic-gradient(var(--primary-color) ${percent}%, var(--bg-surface) ${percent}%)`;
+            progressText.textContent = percent + '%';
+        }
+    }
+    
+    // Simple toast notification
+    function showToast(message, type = 'info') {
+        const toast = document.createElement('div');
+        toast.className = `alert alert-${type} position-fixed bottom-0 start-50 translate-middle-x mb-3 animate-fade-in`;
+        toast.style.zIndex = '9999';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.remove();
+        }, 3000);
+    }
+    
+    // Simulated progress tracking (could be enhanced with actual video playback tracking)
+    let watchTime = 0;
+    setInterval(() => {
+        if(watchTime < 90) {
+            watchTime += 1;
+            updateProgress(Math.min(watchTime, 90));
+        }
+    }, 10000); // Update every 10 seconds
+});
+</script>
+{% endblock %}
