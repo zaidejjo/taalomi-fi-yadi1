@@ -53,3 +53,4 @@ black==24.3.0
 
 whitenoise==6.6.0
 mypy==1.9.0
+djangorestframework==3.19.1
