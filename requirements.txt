@@ -3,6 +3,7 @@ anyio
 asgiref
 certifi
 charset-normalizer
+whitenoise
 click
 cohere
 colorama
@@ -10,6 +11,8 @@ debugpy
 dj-database-url
 Django
 django-widget-tweaks
+djangorestframework
+django-environ
 fastavro
 filelock
 fsspec
