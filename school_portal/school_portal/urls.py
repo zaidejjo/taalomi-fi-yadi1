@@ -67,8 +67,6 @@ urlpatterns = [
     # Robots
     path('robots.txt', TemplateView.as_view(template_name="robots.txt", content_type="text/plain")),
 
-    # Catch-all for React Frontend - REMOVED
-
 ]
 
 # ملفات الميديا في الوضع التطويري

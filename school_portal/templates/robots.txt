@@ -1,2 +1,3 @@
 User-agent: *
 Allow: /
+Sitemap: https://taalomi-fi-yadi.onrender.com/sitemap.xml

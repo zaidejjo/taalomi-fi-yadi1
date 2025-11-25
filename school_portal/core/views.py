@@ -8,8 +8,12 @@ import os
 from django.conf import settings
 from django.http import HttpResponse
 
+from django.views.decorators.cache import cache_page
+from django.utils.decorators import method_decorator
+
 # Serve React App - REMOVED
 
+@method_decorator(cache_page(60 * 15), name='dispatch')
 class HomeView(TemplateView):
     template_name = 'home.html'
 
