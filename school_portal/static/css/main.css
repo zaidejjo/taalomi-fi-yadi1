@@ -319,3 +319,130 @@ ul {
 @keyframes spin {
     to { transform: rotate(360deg); }
 }
+/* ========================
+   Theme Toggle Button
+   ======================== */
+#toggle-theme {
+    width: 50px;                /* حجم الزر */
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;         /* دائري تماماً */
+    border: none;
+    cursor: pointer;
+    background-color: var(--bg-surface);
+    color: var(--primary-color);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+    transition: all 0.4s ease;
+    font-size: 1.3rem;
+}
+
+#toggle-theme:hover {
+    transform: scale(1.1);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+#toggle-theme i {
+    transition: transform 0.4s ease, color 0.4s ease;
+}
+
+/* Smooth transition لجميع العناصر عند تبديل الثيم */
+body, .glass-card, .navbar, footer {
+    transition: background 0.5s ease, color 0.5s ease, box-shadow 0.5s ease;
+}
+
+
+
+
+/* ========================
+   Feature Icon Styling
+   ======================== */
+
+   /* Dark Mode fixes for text */
+[data-theme="dark"] .text-muted {
+    color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .feature-card h3,
+[data-theme="dark"] .feature-card h4,
+[data-theme="dark"] .feature-card p {
+    color: #f1f5f9;
+}
+
+[data-theme="dark"] .hero-section h1,
+[data-theme="dark"] .hero-section p {
+    color: #f8f9fa;
+}
+
+[data-theme="dark"] .badge {
+    color: #f8f9fa !important;
+}
+
+[data-theme="dark"] .btn-outline-primary {
+    color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+}
+
+[data-theme="dark"] .btn-outline-primary:hover {
+    color: #fff !important;
+    background-color: var(--primary-color) !important;
+}
+
+
+/* -----------------------------
+   NAVBAR LIGHT MODE
+--------------------------------*/
+.main-navbar {
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-radius: 20px;
+    padding: 10px 18px;
+    transition: all 0.3s ease-in-out;
+}
+
+.main-navbar .nav-link {
+    color: #1e293b !important;
+    font-weight: 500;
+}
+
+.main-navbar .nav-link:hover {
+    color: var(--primary-color) !important;
+}
+
+.main-navbar .navbar-brand span {
+    color: var(--primary-color);
+}
+
+/* Navbar Toggler Light */
+.main-navbar .navbar-toggler {
+    filter: invert(0);
+}
+
+/* -----------------------------
+   NAVBAR DARK MODE
+--------------------------------*/
+[data-theme="dark"] .main-navbar {
+    background: rgba(15, 23, 42, 0.75); /* أزرق داكن راقي */
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    color: #f1f5f9;
+}
+
+[data-theme="dark"] .main-navbar .nav-link {
+    color: #f8fafc !important;
+}
+
+[data-theme="dark"] .main-navbar .nav-link:hover {
+    color: var(--primary-color) !important;
+}
+
+[data-theme="dark"] .main-navbar .navbar-brand span {
+    color: var(--primary-color);
+}
+
+/* Navbar Toggler Dark */
+[data-theme="dark"] .main-navbar .navbar-toggler {
+    filter: invert(1);
+}

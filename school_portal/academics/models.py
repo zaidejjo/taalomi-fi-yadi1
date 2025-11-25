@@ -1,6 +1,7 @@
 # academies/models.py
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.utils.text import slugify
 from core.models import GradeLevel, Teacher, Student
 
 # ================== أيام الأسبوع ==================
@@ -19,7 +20,8 @@ class Subject(models.Model):
     name = models.CharField(max_length=100, verbose_name=_('اسم المادة'))
     grade = models.ForeignKey(GradeLevel, on_delete=models.PROTECT, verbose_name=_('الصف'))
     section = models.CharField(max_length=5, blank=True, verbose_name=_('الشعبة'))
-    teacher = models.ForeignKey(Teacher, on_delete=models.PROTECT, verbose_name=_('المعلم'), null=True, blank=True)
+    teacher = models.ForeignKey(Teacher, on_delete=models.PROTECT, verbose_name=_('المعلم'),
+                                null=True, blank=True)
     description = models.TextField(blank=True, verbose_name=_('الوصف'))
 
     class Meta:
@@ -30,10 +32,15 @@ class Subject(models.Model):
     def __str__(self):
         return f"{self.name} - {self.grade} {self.section}"
 
+    # ================== SLUG ENGLISH ==================
+    def get_slug(self):
+        return slugify(self.name, allow_unicode=False)
+
 
 # ================== الدروس ==================
 class Lesson(models.Model):
-    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='lessons', verbose_name=_('المادة'))
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='lessons',
+                                verbose_name=_('المادة'))
     date = models.DateField(verbose_name=_('التاريخ'), null=True, blank=True)
     unit = models.CharField(max_length=100, blank=True, verbose_name=_('الوحدة'))
     order = models.PositiveIntegerField(default=1, verbose_name=_('رقم الدرس'))
@@ -49,9 +56,17 @@ class Lesson(models.Model):
     def __str__(self):
         return f"{self.title} - {self.subject}"
 
+    # ================== SLUGS عربي للوحدة والدرس ==================
+    def get_unit_slug(self):
+        return slugify(self.unit, allow_unicode=True)
+
+    def get_title_slug(self):
+        return slugify(self.title, allow_unicode=True)
+
 
 class LessonMaterial(models.Model):
-    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='materials', verbose_name=_('الدرس'))
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='materials',
+                               verbose_name=_('الدرس'))
     file = models.FileField(upload_to='materials/', verbose_name=_('مرفق'))
 
     class Meta:
@@ -95,7 +110,8 @@ class Exam(models.Model):
     title = models.CharField(max_length=200, verbose_name=_('عنوان الامتحان'))
     date = models.DateField(verbose_name=_('تاريخ الامتحان'))
     section = models.CharField(max_length=5, blank=True, verbose_name=_('الشعبة'))
-    exam_type = models.CharField(max_length=50, choices=EXAM_TYPE_CHOICES, default='نظري', verbose_name=_('نوع الامتحان'))
+    exam_type = models.CharField(max_length=50, choices=EXAM_TYPE_CHOICES,
+                                 default='نظري', verbose_name=_('نوع الامتحان'))
 
     class Meta:
         verbose_name = _('امتحان')
@@ -109,10 +125,12 @@ class Exam(models.Model):
 # ================== الدرجات ==================
 class Grade(models.Model):
     exam = models.ForeignKey(Exam, on_delete=models.CASCADE, verbose_name=_('الامتحان'))
-    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='exam_grades', verbose_name=_('الطالب'))
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='exam_grades',
+                                verbose_name=_('الطالب'))
     score = models.DecimalField(max_digits=5, decimal_places=2, verbose_name=_('الدرجة'))
     notes = models.TextField(blank=True, verbose_name=_('ملاحظات'))
-    graded_by = models.ForeignKey(Teacher, on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_('قيم الدرجات'))
+    graded_by = models.ForeignKey(Teacher, on_delete=models.SET_NULL, null=True, blank=True,
+                                  verbose_name=_('قيم الدرجات'))
 
     class Meta:
         verbose_name = _('درجة')
@@ -121,4 +139,3 @@ class Grade(models.Model):
 
     def __str__(self):
         return f"{self.student} - {self.exam}: {self.score}"
-
