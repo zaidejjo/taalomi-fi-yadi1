@@ -1,156 +1,207 @@
-{% extends 'base.html' %}
-{% load static %}
+{% extends 'base.html' %} {% load static %}
+<link rel="stylesheet" href="{% static 'css/chat.css' %}" />
 
-{% block title %}المساعد الذكي - تعلمي في يدي{% endblock %}
-
-{% block extra_css %}
-<!-- MathJax -->
+{% block title %}المساعد الذكي - تعلمي في يدي{% endblock %}  {% block extra_css %}
+<!-- MathJax for math rendering -->
 <script>
-  MathJax = {
-    tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] },
-    svg: { fontCache: 'global' }
-  };
+    MathJax = {
+        tex: {
+            inlineMath: [
+                ['$', '$'],
+                ['\\(', '\\)'],
+            ],
+            displayMath: [
+                ['$$', '$$'],
+                ['\\[', '\\]'],
+            ],
+        },
+        svg: {
+            fontCache: 'global',
+        },
+    };
 </script>
-<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+<script
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"
+    async
+></script>
 
 <style>
-/* ===== Chat Layout ===== */
+/* ----------------- Layout ----------------- */
 .chat-wrapper {
     display: flex;
     gap: 1rem;
     height: calc(100vh - 140px);
     min-height: 600px;
     overflow: hidden;
-    direction: rtl;
 }
 
+/* Sidebar */
 .chat-sidebar {
     width: 300px;
     display: flex;
     flex-direction: column;
-    transition: transform 0.3s ease;
+    background: var(--bg-surface);
+    z-index: 10;
+    transition: transform 0.3s ease, opacity 0.3s ease;
 }
 
+/* Hidden sidebar for small screens */
+.chat-sidebar.hidden, 
+.chat-sidebar:not(.show) {
+    transform: translateX(-110%);
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Chat list inside sidebar */
 .chat-list {
     flex: 1;
     overflow-y: auto;
     padding-right: 5px;
 }
 
+/* Chat Items */
 .chat-item {
     padding: 1rem;
-    border-radius: var(--radius-md);
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
     margin-bottom: 0.5rem;
-    cursor: pointer;
+    border-radius: var(--radius-md);
+    background: rgba(255, 255, 255, 0.05);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    transition: all 0.2s ease;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.chat-item:hover,
+.chat-item.active {
+    background: rgba(67, 97, 238, 0.1);
 }
 
-.chat-item:hover, .chat-item.active {
-    background: rgba(67,97,238,0.1);
-    border-color: var(--primary-color);
-}
-
-/* ===== Main Chat ===== */
+/* Main Chat */
 .chat-main {
     flex: 1;
     display: flex;
     flex-direction: column;
     position: relative;
+    padding: 0.5rem;
+}
+.chat-input {
+    flex: 1;
+    min-height: 40px;
+    max-height: 120px;
+    resize: none;
+    border-radius: 25px;
+    border: 1px solid transparent;
+    padding: 0.5rem 1rem;
+    background: var(--bg-body);
+    color: var(--text-primary);  /* الخط الأساسي */
+    transition: all 0.3s ease;
 }
 
+/* Dark mode */
+[data-theme='dark'] .chat-input {
+    background: var(--bg-surface);  /* خلفية داكنة */
+    color: var(--text-body);        /* خط فاتح */
+}
+
+/* إذا أردت placeholder يكون واضح */
+.chat-input::placeholder {
+    color: var(--text-secondary);
+}
+[data-theme='dark'] .chat-input::placeholder {
+    color: rgba(255,255,255,0.5);
+}
+
+/* Messages */
 .chat-messages {
     flex: 1;
     overflow-y: auto;
-    padding: 1.5rem;
+    padding: 1rem;
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 0.8rem;
     scroll-behavior: smooth;
 }
 
-/* ===== Messages ===== */
+/* Message bubbles */
 .message {
     max-width: 75%;
+    padding: 0.8rem 1rem;
+    border-radius: 20px;
     line-height: 1.5;
     font-size: 0.95rem;
+    word-break: break-word;
+    box-shadow: var(--shadow-sm);
+    align-self: flex-start; /* بدلاً من flex-end */
+    user-select: text;      /* النص قابل للنسخ */
 }
 
 .message.user {
-    align-self: flex-end;
     background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
     color: white;
-    border-radius: 20px 4px 20px 20px;
-    padding: 0.8rem 1rem;
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 4px;
 }
-
 .message.ai {
-    align-self: flex-start;
-    background: transparent;
-    color: var(--text-main);
-    padding: 0.2rem 0;
-    white-space: pre-wrap;
+    background: var(--bg-surface);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 4px;
 }
 
+/* Message time */
 .message-time {
+    display: block;
     font-size: 0.7rem;
     opacity: 0.7;
     margin-top: 4px;
-    display: block;
-    text-align: left;
+    text-align: right;
+    user-select: none; /* الوقت غير قابل للنسخ */
 }
 
-.message.user .message-time { text-align: right; color: rgba(255,255,255,0.8); }
-
-/* ===== Code Blocks ===== */
+/* Code blocks */
 .code-block {
-    background: rgba(0,0,0,0.05);
+    background: rgba(0, 0, 0, 0.05);
     border-left: 3px solid var(--primary-color);
     padding: 1rem;
+    margin: 0.5rem 0;
     border-radius: var(--radius-sm);
     overflow-x: auto;
     font-family: 'Courier New', monospace;
     font-size: 0.9rem;
 }
-
-[data-theme="dark"] .code-block {
-    background: rgba(255,255,255,0.05);
+[data-theme='dark'] .code-block {
+    background: rgba(255, 255, 255, 0.05);
 }
 
-/* ===== Input ===== */
+/* Input area */
 .chat-input-area {
-    padding: 1rem;
-    background: var(--bg-surface);
-    border-top: 1px solid rgba(0,0,0,0.05);
-    border-radius: 0 0 var(--radius-md) var(--radius-md);
+    padding: 0.5rem;
     display: flex;
     align-items: flex-end;
     gap: 0.5rem;
+    background: var(--bg-surface);
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
 }
-
 .chat-input {
     flex: 1;
+    min-height: 40px;
+    max-height: 120px;
+    resize: none;
     border-radius: 25px;
     border: 1px solid transparent;
-    padding: 0.75rem 1rem;
-    resize: none;
-    max-height: 120px;
-    min-height: 50px;
-    transition: all 0.3s ease;
+    padding: 0.5rem 1rem;
     background: var(--bg-body);
+    transition: all 0.3s ease;
 }
-
 .chat-input:focus {
     outline: none;
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(67,97,238,0.15);
+    box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
 }
 
-/* ===== Typing Indicator ===== */
+/* Typing indicator */
 .typing-indicator span {
     display: inline-block;
     width: 6px;
@@ -160,94 +211,183 @@
     animation: typing 1.4s infinite ease-in-out both;
     margin: 0 2px;
 }
+.typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+.typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+@keyframes typing { 0%,80%,100%{transform:scale(0);}40%{transform:scale(1);} }
 
-.typing-indicator span:nth-child(1){ animation-delay: -0.32s; }
-.typing-indicator span:nth-child(2){ animation-delay: -0.16s; }
-
-@keyframes typing {
-    0%, 80%, 100% { transform: scale(0); }
-    40% { transform: scale(1); }
-}
-
-/* ===== Voice Button ===== */
+/* Voice button pulse */
 .voice-active {
-    animation: pulse-ring 1.5s cubic-bezier(0.215,0.61,0.355,1) infinite;
+    animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
     background-color: var(--danger-color) !important;
 }
-
 @keyframes pulse-ring {
-    0% { box-shadow: 0 0 0 0 rgba(230,57,70,0.7); }
-    70% { box-shadow: 0 0 0 10px rgba(230,57,70,0); }
-    100% { box-shadow: 0 0 0 0 rgba(230,57,70,0); }
+    0% { box-shadow: 0 0 0 0 rgba(230, 57, 70, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(230, 57, 70, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(230, 57, 70, 0); }
 }
 
-/* ===== Responsive ===== */
-@media(max-width:768px){
-    .chat-wrapper{ flex-direction: column; height: calc(100vh - 100px); }
-    .chat-sidebar{ width: 100%; max-height: 150px; display:none; }
-    .chat-sidebar.show{ display:flex; }
+/* Toggle sidebar button */
+#toggle-sidebar {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
 }
+
+/* Responsive */
+@media (max-width: 768px) {
+    .chat-wrapper { flex-direction: column; height: calc(100vh - 100px); }
+    .chat-sidebar {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        max-width: 80%;
+        box-shadow: 0 0 15px rgba(0,0,0,0.2);
+        transform: translateX(-110%);
+        opacity: 0;
+        pointer-events: none;
+        z-index: 1000;
+    }
+    .chat-sidebar.show {
+        transform: translateX(0);
+        opacity: 1;
+        pointer-events: auto;
+    }
+}
+@media (min-width: 769px) {
+    #toggle-sidebar { display: none; }
+    .chat-sidebar {
+        position: relative;
+        transform: none !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        z-index: 10;
+    }
+}
+
 </style>
-{% endblock %}
-
-{% block content %}
+{% endblock %} {% block content %}
 <div class="container-fluid h-100">
     <div class="chat-wrapper">
         <!-- Sidebar -->
-        <aside class="chat-sidebar glass-card p-3 d-flex flex-column" id="sidebar">
+        <aside
+            class="chat-sidebar glass-card p-3 d-flex flex-column"
+            id="sidebar"
+        >
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="fw-bold m-0 text-primary"><i class="fa-solid fa-comments me-2"></i>المحادثات</h5>
-                <button class="btn btn-sm btn-primary-modern rounded-circle p-2" id="new-chat-btn" title="محادثة جديدة">
+                <h5 class="fw-bold m-0 text-primary">
+                    <i class="fa-solid fa-comments me-2"></i> المحادثات
+                </h5>
+                <button
+                    class="btn btn-sm btn-primary-modern rounded-circle p-2"
+                    id="new-chat-btn"
+                    title="محادثة جديدة"
+                >
                     <i class="fa-solid fa-plus"></i>
                 </button>
             </div>
-            <div class="chat-list custom-scrollbar" id="chat-list"></div>
+            <div class="chat-list custom-scrollbar" id="chat-list">
+                <!-- Chat items will be injected here -->
+            </div>
         </aside>
 
         <!-- Main Chat -->
         <main class="chat-main glass-card p-0 d-flex flex-column">
-            <div class="p-3 border-bottom d-flex align-items-center justify-content-between bg-white bg-opacity-10">
+            <!-- Header -->
+            <div
+                class="p-3 border-bottom d-flex align-items-center justify-content-between bg-white bg-opacity-10"
+            >
                 <div class="d-flex align-items-center">
-                    <button class="btn btn-sm btn-light d-md-none me-2" id="toggle-sidebar"><i class="fa-solid fa-bars"></i></button>
-                    <div class="avatar bg-primary bg-opacity-10 text-primary rounded-circle p-2 me-2">
-                        <img src="{% static 'images/ai_robot.webp' %}" width="30" height="30" alt="AI">
+                    <button class="btn btn-sm btn-light me-2" id="toggle-sidebar" title="إظهار/إخفاء المحادثات">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+
+                    <div
+                        class="avatar bg-primary bg-opacity-10 text-primary rounded-circle p-2 me-2"
+                    >
+                        <img
+                            src="{% static 'images/ai_robot.webp' %}"
+                            width="30"
+                            height="30"
+                            alt="AI"
+                        />
                     </div>
                     <div>
-                        <h6 class="fw-bold mb-0" id="chat-title">المساعد الذكي</h6>
-                        <small class="text-success"><i class="fa-solid fa-circle fa-2xs"></i> متصل الآن</small>
+                        <h6 class="fw-bold mb-0" id="chat-title">
+                            المساعد الذكي
+                        </h6>
+                        <small class="text-success"
+                            ><i class="fa-solid fa-circle fa-2xs"></i> متصل
+                            الآن</small
+                        >
                     </div>
                 </div>
                 <div class="dropdown">
-                    <button class="btn btn-link text-secondary" data-bs-toggle="dropdown"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+                    <button
+                        class="btn btn-link text-secondary"
+                        data-bs-toggle="dropdown"
+                    >
+                        <i class="fa-solid fa-ellipsis-vertical"></i>
+                    </button>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#" id="clear-chat"><i class="fa-solid fa-trash me-2"></i>مسح المحادثة</a></li>
-                        <li><a class="dropdown-item" href="#" id="rename-chat"><i class="fa-solid fa-pen me-2"></i>إعادة تسمية</a></li>
+                        <li>
+                            <a class="dropdown-item" href="#" id="clear-chat"
+                                ><i class="fa-solid fa-trash me-2"></i> مسح
+                                المحادثة</a
+                            >
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="#" id="rename-chat"
+                                ><i class="fa-solid fa-pen me-2"></i> إعادة
+                                تسمية</a
+                            >
+                        </li>
                     </ul>
                 </div>
             </div>
 
             <!-- Messages -->
             <div class="chat-messages custom-scrollbar" id="chat-box">
+                <!-- Messages will be injected here -->
                 <div class="text-center text-muted my-5" id="empty-state">
-                    <img src="{% static 'images/ai_robot.webp' %}" width="80" class="mb-3 opacity-50" alt="AI">
-                    <p>مرحباً! أنا مساعدك الذكي.<br>كيف يمكنني مساعدتك اليوم؟</p>
+                    <img
+                        src="{% static 'images/ai_robot.webp' %}"
+                        width="80"
+                        class="mb-3 opacity-50"
+                        alt="AI"
+                    />
+                    <p>
+                        مرحباً! أنا مساعدك الذكي.<br />كيف يمكنني مساعدتك اليوم؟
+                    </p>
                 </div>
             </div>
 
             <!-- Input -->
             <div class="chat-input-area">
-                <button class="btn btn-light rounded-circle shadow-sm" id="voice-btn" title="تحدث">
+                <button
+                    class="btn btn-light rounded-circle shadow-sm"
+                    id="voice-btn"
+                    title="تحدث"
+                >
                     <i class="fa-solid fa-microphone"></i>
                 </button>
-                <textarea class="chat-input shadow-sm" id="user-input" placeholder="اكتب رسالتك هنا..." rows="1"></textarea>
-                <button class="btn btn-primary-modern rounded-circle p-3 shadow-md" id="send-btn">
+                <textarea
+                    class="chat-input shadow-sm"
+                    id="user-input"
+                    placeholder="اكتب رسالتك هنا..."
+                    rows="1"
+                ></textarea>
+                <button
+                    class="btn btn-primary-modern rounded-circle p-3 shadow-md"
+                    id="send-btn"
+                >
                     <i class="fa-solid fa-paper-plane"></i>
                 </button>
             </div>
         </main>
     </div>
 </div>
-{% endblock %}
+{% endblock %} 
 
 {% block extra_js %}
 <script>
@@ -263,49 +403,67 @@ document.addEventListener('DOMContentLoaded', () => {
     const toggleSidebarBtn = document.getElementById('toggle-sidebar');
     const sidebar = document.getElementById('sidebar');
 
-    let waitingForAI = false;
-    let activeChatId = null;
-    let recognition, recording = false;
+    let waitingForAI = false, activeChatId = null, recognition, recording = false;
     let chats = JSON.parse(localStorage.getItem('chats') || '{}');
 
-    if(toggleSidebarBtn){
-        toggleSidebarBtn.addEventListener('click', ()=>{ sidebar.classList.toggle('show'); });
+    // Sidebar toggle
+    toggleSidebarBtn.addEventListener('click', () => { sidebar.classList.toggle('show'); });
+    chatBox.addEventListener('click', () => { if(window.innerWidth<768) sidebar.classList.remove('show'); });
+
+    // Input auto-resize
+    inputField.addEventListener('input', function(){ this.style.height='auto'; this.style.height=this.scrollHeight+'px'; });
+
+    function saveChats(){ localStorage.setItem('chats', JSON.stringify(chats)); }
+    function scrollToBottom(){ chatBox.scrollTop = chatBox.scrollHeight; }
+
+    function appendMessage(sender,text,time){
+        const div=document.createElement('div');
+        div.className=`message ${sender}`;
+        let formatted=text.replace(/\n/g,'<br>').replace(/```([\s\S]*?)```/g,'<pre class="code-block"><code>$1</code></pre>');
+        div.innerHTML=`${formatted}<span class="message-time">${time}</span>`;
+        chatBox.appendChild(div);
+        if(typeof MathJax!=='undefined') MathJax.typesetPromise([div]).catch(err=>console.log(err));
+        scrollToBottom();
     }
 
-    inputField.addEventListener('input', function(){
-        this.style.height = 'auto';
-        this.style.height = this.scrollHeight + 'px';
-    });
+    function addMessage(sender,text){
+        if(!activeChatId) newChatBtn.click();
+        emptyState.style.display='none';
+        const now=new Date();
+        const time=now.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+        appendMessage(sender,text,time);
+        chats[activeChatId].messages.push({sender,text,time});
+        if(chats[activeChatId].messages.length===1 && sender==='user'){
+            chats[activeChatId].title=text.substring(0,20)+(text.length>20?'...':'');
+            chatTitle.innerText=chats[activeChatId].title;
+            renderSidebar();
+        }
+        saveChats();
+    }
 
     function renderSidebar(){
         chatList.innerHTML='';
-        const sortedIds = Object.keys(chats).sort((a,b)=>b.split('_')[1]-a.split('_')[1]);
-        if(sortedIds.length===0){ chatList.innerHTML='<p class="text-center text-muted small mt-3">لا توجد محادثات سابقة</p>'; return; }
+        const sortedIds=Object.keys(chats).sort((a,b)=>b.split('_')[1]-a.split('_')[1]);
+        if(sortedIds.length===0){
+            chatList.innerHTML='<p class="text-center text-muted small mt-3">لا توجد محادثات سابقة</p>';
+            return;
+        }
         sortedIds.forEach(id=>{
             const div=document.createElement('div');
             div.className=`chat-item ${id===activeChatId?'active':''}`;
             div.innerHTML=`<div class="d-flex align-items-center overflow-hidden">
-                                <div class="bg-primary bg-opacity-10 rounded-circle p-2 me-2 flex-shrink-0">
-                                    <i class="fa-regular fa-message text-primary"></i>
-                                </div>
-                                <span class="text-truncate fw-medium">${chats[id].title}</span>
-                            </div>
-                            <button class="btn btn-link text-danger p-0 ms-2 delete-chat" title="حذف">
-                                <i class="fa-solid fa-xmark"></i>
-                            </button>`;
+                <div class="bg-primary bg-opacity-10 rounded-circle p-2 me-2 flex-shrink-0">
+                    <i class="fa-regular fa-message text-primary"></i>
+                </div>
+                <span class="text-truncate fw-medium">${chats[id].title}</span></div>
+                <button class="btn btn-link text-danger p-0 ms-2 delete-chat" title="حذف"><i class="fa-solid fa-xmark"></i></button>`;
             div.onclick=()=>loadChat(id);
             div.querySelector('.delete-chat').onclick=e=>{
                 e.stopPropagation();
-                if(confirm('هل أنت متأكد من حذف هذه المحادثة؟')){
+                if(confirm('هل تريد حذف هذه المحادثة؟')){
                     delete chats[id];
                     saveChats();
-                    if(activeChatId===id){
-                        activeChatId=null;
-                        chatBox.innerHTML='';
-                        chatBox.appendChild(emptyState);
-                        emptyState.style.display='block';
-                        chatTitle.innerText='المساعد الذكي';
-                    }
+                    if(activeChatId===id){ activeChatId=null; chatBox.innerHTML=''; chatBox.appendChild(emptyState); emptyState.style.display='block'; chatTitle.innerText='المساعد الذكي'; }
                     renderSidebar();
                 }
             };
@@ -313,14 +471,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function saveChats(){ localStorage.setItem('chats',JSON.stringify(chats)); }
-
     newChatBtn.onclick=()=>{
         const id='chat_'+Date.now();
         chats[id]={title:'محادثة جديدة',messages:[]};
-        loadChat(id);
-        saveChats();
-        renderSidebar();
+        loadChat(id); saveChats(); renderSidebar();
         if(window.innerWidth<768) sidebar.classList.remove('show');
     };
 
@@ -329,98 +483,50 @@ document.addEventListener('DOMContentLoaded', () => {
         chatBox.innerHTML='';
         const chat=chats[id];
         chatTitle.innerText=chat.title;
-        if(chat.messages.length===0){
-            chatBox.appendChild(emptyState);
-            emptyState.style.display='block';
-        } else {
-            emptyState.style.display='none';
-            chat.messages.forEach(msg=>appendMessageToDOM(msg.sender,msg.text,msg.time));
-        }
-        renderSidebar();
-        scrollToBottom();
+        if(chat.messages.length===0){ chatBox.appendChild(emptyState); emptyState.style.display='block'; }
+        else{ emptyState.style.display='none'; chat.messages.forEach(m=>appendMessage(m.sender,m.text,m.time)); }
+        renderSidebar(); scrollToBottom();
     }
-
-    function appendMessageToDOM(sender,text,time){
-        const div=document.createElement('div');
-        div.className=`message ${sender}`;
-        let formattedText=text.replace(/\n/g,'<br>');
-        formattedText=formattedText.replace(/```([\s\S]*?)```/g,'<pre class="code-block"><code>$1</code></pre>');
-        div.innerHTML=`${formattedText}<span class="message-time">${time}</span>`;
-        chatBox.appendChild(div);
-        if(typeof MathJax!=='undefined'){ MathJax.typesetPromise([div]).catch(err=>console.log('MathJax error:',err)); }
-    }
-
-    function addMessage(sender,text){
-        if(!activeChatId) newChatBtn.click();
-        emptyState.style.display='none';
-        const now=new Date();
-        const time=now.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-        appendMessageToDOM(sender,text,time);
-        scrollToBottom();
-        chats[activeChatId].messages.push({sender,text,time});
-        if(chats[activeChatId].messages.length===1 && sender==='user'){
-            chats[activeChatId].title=text.substring(0,20)+(text.length>20?'...':'');
-            chatTitle.innerText=chats[activeChatId].title;
-            renderSidebar();
-        }
-        saveChats();
-        return chatBox.lastElementChild;
-    }
-
-    function scrollToBottom(){ chatBox.scrollTop=chatBox.scrollHeight; }
 
     async function sendMessage(){
         if(waitingForAI) return;
         const msg=inputField.value.trim();
         if(!msg) return;
-        inputField.value='';
-        inputField.style.height='auto';
-        waitingForAI=true;
-        addMessage('user',msg);
+        inputField.value=''; inputField.style.height='auto';
+        waitingForAI=true; addMessage('user',msg);
 
         const typingDiv=document.createElement('div');
         typingDiv.className='message ai typing-indicator';
         typingDiv.innerHTML='<span></span><span></span><span></span>';
-        chatBox.appendChild(typingDiv);
-        scrollToBottom();
+        chatBox.appendChild(typingDiv); scrollToBottom();
 
         try{
-            const response=await fetch("{% url 'ai_chat:chat_ai' %}",{
-                method:'POST',
-                headers:{'Content-Type':'application/json'},
-                body:JSON.stringify({message:msg})
-            });
-            const data=await response.json();
-            chatBox.removeChild(typingDiv);
-            addMessage('ai',data.reply||'عذراً، لم أتمكن من فهم ذلك.');
-        } catch(err){
-            chatBox.removeChild(typingDiv);
-            addMessage('ai','⚠️ حدث خطأ في الاتصال، يرجى المحاولة لاحقاً.');
-            console.error(err);
-        } finally{ waitingForAI=false; }
+            const res=await fetch("{% url 'ai_chat:chat_ai' %}",{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg})});
+            const data=await res.json();
+            chatBox.removeChild(typingDiv); addMessage('ai',data.reply||'عذراً، لم أتمكن من الفهم.');
+        }catch(e){
+            chatBox.removeChild(typingDiv); addMessage('ai','⚠️ حدث خطأ في الاتصال'); console.error(e);
+        }finally{waitingForAI=false;}
     }
 
     sendBtn.onclick=sendMessage;
-    inputField.addEventListener('keydown',e=>{
-        if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendMessage(); }
-    });
+    inputField.addEventListener('keydown',e=>{ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendMessage(); } });
 
+    // Voice recognition
     if('webkitSpeechRecognition' in window){
         recognition=new webkitSpeechRecognition();
-        recognition.lang='ar-JO';
-        recognition.continuous=false;
-        recognition.interimResults=false;
+        recognition.lang='ar-JO'; recognition.continuous=false; recognition.interimResults=false;
 
-        recognition.onstart=()=>{ recording=true; voiceBtn.classList.add('voice-active'); voiceBtn.innerHTML='<i class="fa-solid fa-stop"></i>'; };
-        recognition.onend=()=>{ recording=false; voiceBtn.classList.remove('voice-active'); voiceBtn.innerHTML='<i class="fa-solid fa-microphone"></i>'; };
-        recognition.onresult=e=>{ const transcript=e.results[0][0].transcript; inputField.value+=transcript+' '; inputField.focus(); };
-        voiceBtn.onclick=()=>{ if(recording) recognition.stop(); else recognition.start(); };
-    } else { voiceBtn.style.display='none'; }
+        recognition.onstart=()=>{ recording=true; voiceBtn.classList.add('voice-active'); voiceBtn.innerHTML='<i class="fa-solid fa-stop"></i>'; }
+        recognition.onend=()=>{ recording=false; voiceBtn.classList.remove('voice-active'); voiceBtn.innerHTML='<i class="fa-solid fa-microphone"></i>'; }
+        recognition.onresult=e=>{ inputField.value+=e.results[0][0].transcript+' '; inputField.focus(); }
 
-    if(Object.keys(chats).length>0){
-        const lastId=Object.keys(chats).sort((a,b)=>b.split('_')[1]-a.split('_')[1])[0];
-        loadChat(lastId);
-    } else { renderSidebar(); }
+        voiceBtn.onclick=()=>{ if(recording) recognition.stop(); else recognition.start(); }
+    } else voiceBtn.style.display='none';
+
+    if(Object.keys(chats).length>0) loadChat(Object.keys(chats).sort((a,b)=>b.split('_')[1]-a.split('_')[1])[0]);
+    else renderSidebar();
 });
+
 </script>
 {% endblock %}
